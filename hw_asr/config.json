@@ -17,7 +17,7 @@
     "type": "BaselineModel",
     "args": {
       "n_feats": 128,
-      "rnn_dim": 256,
+      "rnn_dim": 128,
       "rnn_layers": 4,
       "hidden_dim": 128,
       "hidden_layers": 2,
@@ -59,7 +59,7 @@
   "optimizer": {
     "type": "SGD",
     "args": {
-      "lr": 3e-4
+      "lr": 1e-1
     }
   },
   "loss": {
@@ -83,20 +83,20 @@
   "lr_scheduler": {
     "type": "OneCycleLR",
     "args": {
-      "steps_per_epoch": 100,
-      "epochs": 50,
+      "steps_per_epoch": 1,
+      "epochs": 500,
       "anneal_strategy": "cos",
       "max_lr": 4e-3,
       "pct_start": 0.2
     }
   },
   "trainer": {
-    "epochs": 50,
+    "epochs": 500,
     "save_dir": "saved/",
     "save_period": 5,
     "verbosity": 2,
     "monitor": "min val_loss",
-    "early_stop": 100,
+    "early_stop": -1,
     "visualize": "wandb",
     "wandb_project": "asr_project",
     "grad_norm_clip": 10

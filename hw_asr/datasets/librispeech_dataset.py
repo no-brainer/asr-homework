@@ -88,7 +88,7 @@ class LibrispeechDataset(BaseDataset):
                     index.append(
                         {
                             "path": str(flac_path.absolute().resolve()),
-                            "text": f_text.lower(),
+                            "text": f_text.lower().replace("'", ""),
                             "audio_len": length,
                         }
                     )

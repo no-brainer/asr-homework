@@ -98,7 +98,6 @@ class BaseDataset(Dataset):
     def _filter_records_from_dataset(
             index: list, max_audio_length, max_text_length, limit
     ) -> list:
-        print(limit)
         initial_size = len(index)
         if max_audio_length is not None:
             exceeds_audio_length = np.array([el["audio_len"] for el in index]) >= max_audio_length
