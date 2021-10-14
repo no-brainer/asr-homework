@@ -11,11 +11,11 @@ class WanDBWriter:
             import wandb
             wandb.login()
 
-            if config['trainer'].get('wandb_project') is None:
+            if config["trainer"].get("wandb_project") is None:
                 raise ValueError("please specify project name for wandb")
 
             wandb.init(
-                project=config['trainer'].get('wandb_project'),
+                project=config["trainer"].get("wandb_project"),
                 config=config.config
             )
             self.wandb = wandb

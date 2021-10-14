@@ -17,7 +17,11 @@
     "type": "BaselineModel",
     "args": {
       "n_feats": 128,
-      "fc_hidden": 512
+      "rnn_dim": 256,
+      "rnn_layers": 4,
+      "hidden_dim": 128,
+      "hidden_layers": 2,
+      "bidirectional": true
     }
   },
   "data": {
@@ -30,7 +34,8 @@
           "args": {
             "part": "train-clean-100",
             "max_audio_length": 20.0,
-            "max_text_length": 200
+            "max_text_length": 200,
+            "limit": 20
           }
         }
       ]
@@ -44,7 +49,8 @@
           "args": {
             "part": "dev-clean",
             "max_audio_length": 20.0,
-            "max_text_length": 200
+            "max_text_length": 200,
+            "limit": 20
           }
         }
       ]
@@ -93,7 +99,6 @@
     "early_stop": 100,
     "visualize": "wandb",
     "wandb_project": "asr_project",
-    "len_epoch": 100,
     "grad_norm_clip": 10
   }
 }
