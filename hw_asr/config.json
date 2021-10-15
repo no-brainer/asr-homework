@@ -18,10 +18,10 @@
     "args": {
       "n_feats": 128,
       "rnn_dim": 128,
-      "rnn_layers": 4,
+      "rnn_layers": 1,
       "hidden_dim": 128,
-      "hidden_layers": 2,
-      "bidirectional": true
+      "hidden_layers": 1,
+      "bidirectional": false
     }
   },
   "data": {
@@ -84,14 +84,14 @@
     "type": "OneCycleLR",
     "args": {
       "steps_per_epoch": 1,
-      "epochs": 500,
+      "epochs": 1200,
       "anneal_strategy": "cos",
-      "max_lr": 4e-3,
+      "max_lr": 1e-1,
       "pct_start": 0.2
     }
   },
   "trainer": {
-    "epochs": 500,
+    "epochs": 1200,
     "save_dir": "saved/",
     "save_period": 5,
     "verbosity": 2,

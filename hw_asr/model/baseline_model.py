@@ -16,16 +16,15 @@ class BaselineModel(BaseModel):
             bidirectional=is_bidirectional, batch_first=True
         )
 
-        cur_dim = 2 * rnn_dim
+        cur_dim = 2 * rnn_dim if is_bidirectional else rnn_dim
         layers = []
-        if hidden_layers > 1:
-            for _ in range(hidden_layers - 1):
-                layers.extend([
-                    nn.Linear(cur_dim, hidden_dim),
-                    nn.GELU(),
-                    nn.Dropout(dropout)
-                ])
-                cur_dim = hidden_dim
+        for _ in range(hidden_layers - 1):
+            layers.extend([
+                nn.Linear(cur_dim, hidden_dim),
+                nn.GELU(),
+                nn.Dropout(dropout)
+            ])
+            cur_dim = hidden_dim
 
         layers.append(nn.Linear(cur_dim, n_class))
 
