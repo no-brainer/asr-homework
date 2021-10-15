@@ -21,7 +21,7 @@
       "rnn_layers": 1,
       "hidden_dim": 128,
       "hidden_layers": 1,
-      "bidirectional": false
+      "bidirectional": true
     }
   },
   "data": {
@@ -83,15 +83,16 @@
   "lr_scheduler": {
     "type": "OneCycleLR",
     "args": {
-      "steps_per_epoch": 1,
-      "epochs": 1200,
+      "steps_per_epoch": 51,
+      "epochs": 55,
       "anneal_strategy": "cos",
       "max_lr": 1e-1,
       "pct_start": 0.2
     }
   },
   "trainer": {
-    "epochs": 1200,
+    "epochs": 55,
+    "len_epoch": 50,
     "save_dir": "saved/",
     "save_period": 5,
     "verbosity": 2,
