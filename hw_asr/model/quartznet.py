@@ -6,16 +6,16 @@ from hw_asr.base import BaseModel
 from hw_asr.model.utils import get_same_padding
 
 
-def pointwise_conv(in_channels, out_channels, dilation=1, use_bias=False):
+def pointwise_conv(in_channels, out_channels, dilation=1, stride=1, use_bias=False):
     return nn.Conv1d(
-        in_channels, out_channels, kernel_size=1, dilation=dilation, bias=use_bias
+        in_channels, out_channels, kernel_size=1, dilation=dilation, stride=stride, bias=use_bias
     )
 
 
-def depthwise_conv(in_channels, out_channels, kernel_size, use_bias=False):
+def depthwise_conv(in_channels, out_channels, kernel_size, stride=1, use_bias=False):
     padding = get_same_padding(kernel_size)
     return nn.Conv1d(in_channels, out_channels, kernel_size=kernel_size,
-                     padding=padding, bias=use_bias, groups=in_channels)
+                     padding=padding, stride=stride, bias=use_bias, groups=in_channels)
 
 
 def get_conv_block(
@@ -29,8 +29,8 @@ def get_conv_block(
 ):
     if is_separable:
         layers = [
-            depthwise_conv(in_channels, in_channels, kernel_size),
-            pointwise_conv(in_channels, out_channels),
+            depthwise_conv(in_channels, in_channels, kernel_size, stride=stride),
+            pointwise_conv(in_channels, out_channels, stride=stride),
         ]
     else:
         padding = get_same_padding(kernel_size)
@@ -113,4 +113,4 @@ class QuartzNetModel(BaseModel):
         return out.transpose(-2, -1)
 
     def transform_input_lengths(self, input_lengths):
-        return input_lengths  # we don't reduce time dimension here
+        return input_lengths / 2
