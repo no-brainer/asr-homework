@@ -14,19 +14,18 @@
     "spectrogram": []
   },
   "arch": {
-    "type": "BaselineModel",
+    "type": "QuartzNetModel",
     "args": {
       "n_feats": 128,
-      "rnn_dim": 128,
-      "rnn_layers": 1,
-      "hidden_dim": 128,
-      "hidden_layers": 1,
-      "bidirectional": true
+      "m_quartz_blocks": 5,
+      "r_conv_blocks": 5,
+      "channel_nums": [256, 256, 256, 512, 512, 512, 512, 1024],
+      "kernel_sizes": [ 33,  33,  39,  51,  63,  75,  87,    1]
     }
   },
   "data": {
     "train": {
-      "batch_size": 20,
+      "batch_size": 32,
       "num_workers": 5,
       "datasets": [
         {
@@ -34,14 +33,13 @@
           "args": {
             "part": "train-clean-100",
             "max_audio_length": 20.0,
-            "max_text_length": 200,
-            "limit": 20
+            "max_text_length": 200
           }
         }
       ]
     },
     "val": {
-      "batch_size": 20,
+      "batch_size": 32,
       "num_workers": 5,
       "datasets": [
         {
@@ -49,17 +47,18 @@
           "args": {
             "part": "dev-clean",
             "max_audio_length": 20.0,
-            "max_text_length": 200,
-            "limit": 20
+            "max_text_length": 200
           }
         }
       ]
     }
   },
   "optimizer": {
-    "type": "SGD",
+    "type": "AdamW",
     "args": {
-      "lr": 1e-1
+      "lr": 1e-1,
+      "betas": [0.95, 0.5],
+      "weight_decay": 1e-2
     }
   },
   "loss": {
