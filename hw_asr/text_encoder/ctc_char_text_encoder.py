@@ -4,8 +4,6 @@ import shutil
 from typing import List, Tuple
 import wget
 
-import kenlm
-import numpy as np
 from pyctcdecode import build_ctcdecoder
 import torch
 
