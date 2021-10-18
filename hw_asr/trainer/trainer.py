@@ -114,6 +114,7 @@ class Trainer(BaseTrainer):
                     "learning rate", self.lr_scheduler.get_last_lr()[0]
                 )
                 self._log_predictions(part="train", **batch)
+                self._log_audio_wave(batch["audio"], batch["audio_length"])
                 self._log_spectrogram(batch["spectrogram"])
                 self._log_scalars(self.train_metrics)
             if batch_idx >= self.len_epoch:
@@ -209,10 +210,6 @@ class Trainer(BaseTrainer):
             inds[: int(ind_len)]
             for inds, ind_len in zip(argmax_inds, log_probs_length)
         ]
-        log_probs = [
-            log_prob_mat[: int(length)]
-            for log_prob_mat, length in zip(log_probs, log_probs_length)
-        ]
         argmax_texts_raw = [self.text_encoder.decode(inds) for inds in argmax_inds]
         argmax_texts = [self.text_encoder.ctc_decode(inds) for inds in argmax_inds]
         tuples = list(zip(argmax_texts, text, argmax_texts_raw))
@@ -236,6 +233,12 @@ class Trainer(BaseTrainer):
         spectrogram = random.choice(spectrogram_batch)
         image = PIL.Image.open(plot_spectrogram_to_buf(spectrogram.cpu().log()))
         self.writer.add_image("spectrogram", ToTensor()(image))
+        image.close()
+
+    def _log_audio_wave(self, audio_batch, audio_length):
+        idx = random.randrange(len(audio_batch))
+        audio = audio_batch[idx, :audio_length[idx]]
+        self.writer.add_audio("audiowave", audio)
 
     @torch.no_grad()
     def get_grad_norm(self, norm_type=2):
