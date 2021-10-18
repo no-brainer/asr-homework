@@ -15,9 +15,10 @@ class ArgmaxWERMetric(BaseMetric):
 
     def __call__(self, log_probs: Tensor, log_probs_length: Tensor, text: List[str], *args, **kwargs):
         wers = []
+        log_probs = log_probs.detach().cpu()
         predictions = [
             inds[: int(ind_len)]
-            for inds, ind_len in zip(log_probs.cpu(), log_probs_length)
+            for inds, ind_len in zip(log_probs, log_probs_length)
         ]
         for log_prob_vec, target_text in zip(predictions, text):
             if hasattr(self.text_encoder, "ctc_beam_search"):
