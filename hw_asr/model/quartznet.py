@@ -113,4 +113,4 @@ class QuartzNetModel(BaseModel):
         return out.transpose(-2, -1)
 
     def transform_input_lengths(self, input_lengths):
-        return input_lengths / 2
+        return input_lengths // 2
