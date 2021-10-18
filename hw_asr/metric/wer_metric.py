@@ -15,15 +15,14 @@ class ArgmaxWERMetric(BaseMetric):
 
     def __call__(self, log_probs: Tensor, log_probs_length: Tensor, text: List[str], *args, **kwargs):
         wers = []
-        predictions = torch.argmax(log_probs.cpu(), dim=-1)
         predictions = [
             inds[: int(ind_len)]
-            for inds, ind_len in zip(predictions, log_probs_length)
+            for inds, ind_len in zip(log_probs.cpu(), log_probs_length)
         ]
         for log_prob_vec, target_text in zip(predictions, text):
-            if hasattr(self.text_encoder, "ctc_decode"):
-                pred_text = self.text_encoder.ctc_decode(log_prob_vec)
+            if hasattr(self.text_encoder, "ctc_beam_search"):
+                pred_text = self.text_encoder.ctc_beam_search(log_prob_vec)
             else:
-                pred_text = self.text_encoder.decode(log_prob_vec)
+                pred_text = self.text_encoder.decode(torch.argmax(log_prob_vec, dim=-1))
             wers.append(calc_wer(target_text, pred_text))
         return sum(wers) / len(wers)
