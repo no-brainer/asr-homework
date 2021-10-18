@@ -2,11 +2,11 @@
 
 ## Installation guide
 
-< Write your installation guide here >
-
+1) Install Python packages
 ```shell
 pip install -r ./requirements.txt
 ```
+
 
 ## Recommended implementation order
 
