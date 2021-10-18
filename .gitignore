@@ -105,6 +105,7 @@ data/
 input/
 saved/
 wandb/
+language_models/
 
 # editor, os cache directory
 .vscode/

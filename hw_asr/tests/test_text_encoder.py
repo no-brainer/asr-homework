@@ -3,6 +3,7 @@ import unittest
 import torch
 
 from hw_asr.text_encoder.ctc_char_text_encoder import CTCCharTextEncoder
+import numpy as np
 
 
 class TestTextEncoder(unittest.TestCase):
@@ -22,13 +23,11 @@ class TestTextEncoder(unittest.TestCase):
         return probs
 
     def test_beam_search(self):
-        true_text = "bugz bunny"
-        text_encoder = CTCCharTextEncoder(list(set(true_text)))
+        text_encoder = CTCCharTextEncoder.get_simple_alphabet()
 
-        bad_probs = self.build_perfect_text_probs("bun^ny bun^ny", text_encoder)
-        good_probs = self.build_perfect_text_probs("bugz^^ bun^ny", text_encoder)
-        probs = 0.51 * bad_probs + 0.49 * good_probs
+        probs1 = self.build_perfect_text_probs("bun^ny bun^ny", text_encoder)
+        probs2 = self.build_perfect_text_probs("bugz^^ bun^ny", text_encoder)
+        probs = 0.51 * probs1 + 0.49 * probs2
 
-        # without LM
         decoded_beams = text_encoder.ctc_beam_search(probs, beam_size=20)
         self.assertIn(decoded_beams[0][0], "bunny bunny")
