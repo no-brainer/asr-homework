@@ -22,7 +22,8 @@ class ArgmaxCERMetric(BaseMetric):
         ]
         for log_prob_vec, target_text in zip(predictions, text):
             if hasattr(self.text_encoder, "ctc_beam_search"):
-                pred_text = self.text_encoder.ctc_beam_search(log_prob_vec)
+                hypos = self.text_encoder.ctc_beam_search(log_prob_vec)
+                pred_text = hypos[0][0]
             else:
                 pred_text = self.text_encoder.decode(torch.argmax(log_prob_vec, dim=-1))
             cers.append(calc_cer(target_text, pred_text))

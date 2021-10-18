@@ -102,7 +102,6 @@ class CTCCharTextEncoder(CharTextEncoder):
         if isinstance(probs, torch.Tensor):
             probs = probs.numpy()
 
-        probs = np.log(np.clip(probs, 1e-15, 1))
         beams = self.ctc_decoder.decode_beams(probs, beam_width=beam_size, token_min_logp=-15.)
         hypos = []
         for beam in beams:

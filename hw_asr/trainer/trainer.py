@@ -216,7 +216,7 @@ class Trainer(BaseTrainer):
         argmax_texts_raw = [self.text_encoder.decode(inds) for inds in argmax_inds]
         argmax_texts = [self.text_encoder.ctc_decode(inds) for inds in argmax_inds]
         beamsearch_texts = [
-            self.text_encoder.ctc_beam_search(log_probs_mat)
+            self.text_encoder.ctc_beam_search(log_probs_mat)[0][0]
             for log_probs_mat in log_probs
         ]
         tuples = list(zip(argmax_texts, text, beamsearch_texts, argmax_texts_raw))
