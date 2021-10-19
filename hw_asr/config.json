@@ -46,7 +46,8 @@
       "m_quartz_blocks": 5,
       "r_conv_blocks": 5,
       "channel_nums": [256, 256, 256, 512, 512, 512, 512, 1024],
-      "kernel_sizes": [ 33,  33,  39,  51,  63,  75,  87,    1]
+      "kernel_sizes": [ 33,  33,  39,  51,  63,  75,  87,    1],
+      "activation": "ReLU"
     }
   },
   "data": {

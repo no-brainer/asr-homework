@@ -25,7 +25,7 @@ def get_conv_block(
         stride=1,
         dilation=1,
         is_separable=True,
-        has_activation=True,
+        activation=None
 ):
     if is_separable:
         layers = [
@@ -40,8 +40,9 @@ def get_conv_block(
         ]
 
     layers.append(nn.BatchNorm1d(out_channels))
-    if has_activation:
-        layers.append(nn.ReLU(inplace=True))
+    if activation is not None:
+        activation = getattr(nn, activation)
+        layers.append(activation())
 
     return nn.Sequential(*layers)
 
@@ -53,6 +54,7 @@ class QuartzNetBlock(nn.Module):
             out_channels,
             kernel_size,
             num_conv_blocks,
+            activation,
             *args,
             **kwargs
     ):
@@ -61,8 +63,11 @@ class QuartzNetBlock(nn.Module):
         self.conv_blocks = nn.ModuleList()
         curr_channels = in_channels
         for i in range(num_conv_blocks):
-            has_activation = i + 1 < num_conv_blocks
-            conv_block = get_conv_block(curr_channels, out_channels, kernel_size, has_activation=has_activation)
+            if i + 1 < num_conv_blocks:
+                conv_block = get_conv_block(curr_channels, out_channels, kernel_size, activation=activation)
+            else:
+                conv_block = get_conv_block(curr_channels, out_channels, kernel_size)
+
             self.conv_blocks.append(conv_block)
             curr_channels = out_channels
 
@@ -71,12 +76,15 @@ class QuartzNetBlock(nn.Module):
             nn.BatchNorm1d(out_channels)
         )
 
+        activation_cls = getattr(nn, activation)
+        self.final_activation = activation_cls()
+
     def forward(self, spectrogram, *args, **kwargs):
         out = spectrogram.clone()
         for block in self.conv_blocks:
             out = block(out)
         out += self.residual_transformation(spectrogram)
-        return F.relu(out)
+        return self.final_activation(out)
 
 
 class QuartzNetModel(BaseModel):
@@ -88,6 +96,7 @@ class QuartzNetModel(BaseModel):
             r_conv_blocks,
             channel_nums,
             kernel_sizes,
+            activation,
             *args,
             **kwargs
     ):
@@ -97,12 +106,12 @@ class QuartzNetModel(BaseModel):
         ]
         for i in range(m_quartz_blocks):
             layers.append(
-                QuartzNetBlock(channel_nums[i], channel_nums[i + 1], kernel_sizes[i + 1], r_conv_blocks)
+                QuartzNetBlock(channel_nums[i], channel_nums[i + 1], kernel_sizes[i + 1], r_conv_blocks, activation)
             )
 
         layers.extend([
-            get_conv_block(channel_nums[-3], channel_nums[-2], kernel_sizes[-2]),
-            get_conv_block(channel_nums[-2], channel_nums[-1], kernel_sizes[-1]),
+            get_conv_block(channel_nums[-3], channel_nums[-2], kernel_sizes[-2], activation=activation),
+            get_conv_block(channel_nums[-2], channel_nums[-1], kernel_sizes[-1], activation=activation),
             pointwise_conv(channel_nums[-1], n_class, dilation=2, use_bias=True)
         ])
 
