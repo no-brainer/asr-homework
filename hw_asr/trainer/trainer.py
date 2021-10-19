@@ -33,6 +33,7 @@ class Trainer(BaseTrainer):
             lr_scheduler=None,
             len_epoch=None,
             skip_oom=True,
+            sr=16000
     ):
         super().__init__(model, criterion, metrics, optimizer, config, device)
         self.skip_oom = skip_oom
@@ -50,6 +51,7 @@ class Trainer(BaseTrainer):
         self.do_validation = self.valid_data_loader is not None
         self.lr_scheduler = lr_scheduler
         self.log_step = 10
+        self.sr = sr
 
         self.train_metrics = MetricTracker(
             "loss", "grad norm", *[m.name for m in self.metrics], writer=self.writer
@@ -238,7 +240,7 @@ class Trainer(BaseTrainer):
     def _log_audio_wave(self, audio_batch, audio_length):
         idx = random.randrange(len(audio_batch))
         audio = audio_batch[idx, :audio_length[idx]]
-        self.writer.add_audio("audiowave", audio)
+        self.writer.add_audio("audiowave", audio, sample_rate=self.sr)
 
     @torch.no_grad()
     def get_grad_norm(self, norm_type=2):
