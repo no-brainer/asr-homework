@@ -39,7 +39,7 @@ class BackgroundNoise(AugmentationBase):
         target_sr = self.sr
         if sr != target_sr:
             audio_tensor = torchaudio.functional.resample(audio_tensor, sr, target_sr)
-        return audio_tensor
+        return audio_tensor.squeeze(0)
 
     def __call__(self, data: torch.Tensor):
         sound_path = os.path.join(
@@ -48,6 +48,10 @@ class BackgroundNoise(AugmentationBase):
         )
         background_noise = self._load_audio(sound_path)
 
+        # offset for noise
+        offset = random.randint(0, int(0.75 * data.shape[0]))
+        background_noise = background_noise[:data.shape[0] - offset]
+
         noize_level = torch.Tensor([random.randint(0, 40)])
 
         noize_energy = torch.norm(background_noise)
@@ -55,10 +59,8 @@ class BackgroundNoise(AugmentationBase):
 
         alpha = (audio_energy / noize_energy) * torch.pow(10, -noize_level / 20)
 
-        clipped_wav = data[..., :background_noise.shape[0]]
+        data[offset:offset + background_noise.shape[0]] += alpha * background_noise
 
-        augumented_wav = clipped_wav + alpha * torch.from_numpy(background_noise)
-
-        return torch.clamp(augumented_wav, -1, 1)
+        return torch.clamp(data, -1, 1)
 
 
