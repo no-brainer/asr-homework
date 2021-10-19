@@ -13,16 +13,16 @@ def from_configs(configs: ConfigParser):
     if "augmentations" in configs.config and "wave" in configs.config["augmentations"]:
         for aug_dict in configs.config["augmentations"]["wave"]:
             wave_aug = configs.init_obj(aug_dict, hw_asr.augmentations.wave_augmentations)
-            if "p" in aug_dict:
-                wave_aug = RandomApply(wave_aug, aug_dict["p"])
+            if "aug_prob" in aug_dict:
+                wave_aug = RandomApply(wave_aug, aug_dict["aug_prob"])
             wave_augs.append(wave_aug)
 
     spec_augs = []
     if "augmentations" in configs.config and "spectrogram" in configs.config["augmentations"]:
         for aug_dict in configs.config["augmentations"]["spectrogram"]:
             spec_aug = configs.init_obj(aug_dict, hw_asr.augmentations.spectrogram_augmentations)
-            if "p" in aug_dict:
-                spec_aug = RandomApply(spec_aug, aug_dict["p"])
+            if "aug_prob" in aug_dict:
+                spec_aug = RandomApply(spec_aug, aug_dict["aug_prob"])
             spec_augs.append(spec_aug)
     return _to_function(wave_augs), _to_function(spec_augs)
 
