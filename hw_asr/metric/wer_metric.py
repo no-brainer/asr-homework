@@ -15,7 +15,7 @@ class ArgmaxWERMetric(BaseMetric):
 
     def __call__(self, log_probs: Tensor, log_probs_length: Tensor, text: List[str], *args, **kwargs):
         wers = []
-        predictions = log_probs.argmax(dim=-1)
+        predictions = torch.argmax(log_probs.cpu(), dim=-1)
         predictions = [
             inds[: int(ind_len)]
             for inds, ind_len in zip(predictions, log_probs_length)
