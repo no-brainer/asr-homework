@@ -10,8 +10,34 @@
     }
   },
   "augmentations": {
-    "wave": [],
-    "spectrogram": []
+    "wave": [
+        {
+            "type": "Gain",
+            "args": {
+                "sr": 16000
+            }
+        },
+        {
+            "type": "PitchShifting",
+            "args": {
+                "min_shift": -3,
+                "max_shift": 3,
+                "sr": 16000
+            }
+        },
+        {
+            "type": "BackgroundNoise",
+            "args": {
+                "sr": 16000
+            }
+        }
+    ],
+    "spectrogram": [
+        {
+            "type": "SpecAugment",
+            "args": {}
+        }
+    ]
   },
   "arch": {
     "type": "QuartzNetModel",
@@ -57,8 +83,8 @@
     "type": "AdamW",
     "args": {
       "lr": 1e-1,
-      "betas": [0.95, 0.5],
-      "weight_decay": 1e-2
+      "betas": [0.9, 0.999],
+      "weight_decay": 1e-5
     }
   },
   "loss": {
