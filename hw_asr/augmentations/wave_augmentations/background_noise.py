@@ -47,7 +47,7 @@ class BackgroundNoise(AugmentationBase):
             random.choice(self.background_index)
         )
         background_noise = self._load_audio(sound_path)
-
+        data = data.squeeze(0)
         # offset for noise
         offset = random.randint(0, int(0.75 * data.shape[0]))
         background_noise = background_noise[:data.shape[0] - offset]
@@ -60,7 +60,6 @@ class BackgroundNoise(AugmentationBase):
         alpha = (audio_energy / noize_energy) * torch.pow(10, -noize_level / 20)
 
         data[offset:offset + background_noise.shape[0]] += alpha * background_noise
-
-        return torch.clamp(data, -1, 1)
+        return torch.clamp(data, -1, 1).unsqueeze(0)
 
 

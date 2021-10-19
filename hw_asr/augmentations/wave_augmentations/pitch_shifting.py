@@ -15,5 +15,5 @@ class PitchShifting(AugmentationBase):
 
     def __call__(self, data: torch.Tensor):
         shift = random.randint(self.min_shift, self.max_shift)
-        x = librosa.effects.pitch_shift(data.numpy().squeeze(), self.sr, shift)
-        return torch.from_numpy(x)
+        x = librosa.effects.pitch_shift(data.numpy().squeeze(0), self.sr, shift)
+        return torch.from_numpy(x).unsqueeze(0)
