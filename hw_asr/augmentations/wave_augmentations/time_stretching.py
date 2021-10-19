@@ -8,9 +8,10 @@ from hw_asr.augmentations.base import AugmentationBase
 
 class TimeStretching(AugmentationBase):
     def __init__(self, *args, **kwargs):
-        pass
+        self.min_stretch = kwargs.get("min_stretch", 0.75)
+        self.max_stretch = kwargs.get("max_stretch", 1.25)
 
     def __call__(self, data: torch.Tensor):
-        stretch_coef = 0.5 + 1.5 * random.random()
+        stretch_coef = self.min_stretch + (self.max_stretch - self.min_stretch) * random.random()
         x = librosa.effects.time_stretch(data.numpy().squeeze(), stretch_coef)
         return torch.from_numpy(x)
