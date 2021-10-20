@@ -14,7 +14,7 @@ class BackgroundNoise(AugmentationBase):
         self.sound_folder = "./data/background_sounds"
 
         if not os.path.exists(self.sound_folder):
-            os.mkdir(self.sound_folder)
+            os.makedirs(self.sound_folder, exist_ok=True)
 
             gdrive_id = "1HUWvM0UZO34iltVQz-pLeTRpZgpQZH-7"
             zip_path = os.path.join(self.sound_folder, "noise.zip")
