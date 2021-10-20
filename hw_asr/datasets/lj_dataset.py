@@ -22,14 +22,15 @@ DATASET_URL = "https://data.keithito.com/data/speech/LJSpeech-1.1.tar.bz2"
 
 class LJDataset(BaseDataset):
 
-    def __init__(self, data_dir=None, *args, **kwargs):
+    def __init__(self, part, data_dir=None, *args, **kwargs):
         if data_dir is None:
-            data_dir = ROOT_PATH / "data" / "datasets" / "librispeech"
+            data_dir = ROOT_PATH / "data" / "datasets" / "ljspeech"
             data_dir.mkdir(exist_ok=True, parents=True)
         self._data_dir = data_dir
 
-        index = self._get_or_load_index()
-        self.pattern = re.compile("[^a-z]")
+        self.pattern = re.compile("[^a-z ]")
+        index = self._get_or_load_index(part)
+
         super().__init__(index, *args, **kwargs)
 
     def _load_part(self):
@@ -42,13 +43,13 @@ class LJDataset(BaseDataset):
         os.remove(str(arch_path))
         shutil.rmtree(str(self._data_dir / "LJSpeech-1.1"))
 
-    def _get_or_load_index(self):
-        index_path = self._data_dir / f"lj_index.json"
+    def _get_or_load_index(self, part):
+        index_path = self._data_dir / f"lj_index_{part}.json"
         if index_path.exists():
             with index_path.open() as f:
                 index = json.load(f)
         else:
-            index = self._create_index()
+            index = self._create_index(part)
             with index_path.open("w") as f:
                 json.dump(index, f, indent=2)
         return index
@@ -57,13 +58,20 @@ class LJDataset(BaseDataset):
         text = text.lower()
         return self.pattern.sub("", text)
 
-    def _create_index(self):
+    def _create_index(self, part):
         index = []
 
         metadata_path = self._data_dir / "metadata.csv"
+
+        if not metadata_path.exists():
+            self._load_part()
+
         wav_dir = Path(self._data_dir / "wavs")
         with open(metadata_path, "r") as f:
-            for line in f:
+            for i, line in enumerate(f):
+                if (i % 10 == 0) != (part == "test"):
+                    continue
+
                 utterance_id, text, _ = line.strip().split("|")
                 wav_path = wav_dir / f"{utterance_id}.wav"
                 t_info = torchaudio.info(str(wav_path))
