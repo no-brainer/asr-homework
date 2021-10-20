@@ -2,7 +2,7 @@ import os
 from typing import List, Tuple
 
 import gdown
-from torch import Tensor
+import torch
 import youtokentome as yttm
 
 from hw_asr.text_encoder.ctc_char_text_encoder import CTCCharTextEncoder
@@ -23,27 +23,28 @@ class BPECharTextEncoder(CTCCharTextEncoder):
         alphabet = self.bpe.vocab()[1:]  # first token is <PAD>, we repurpose it
         super().__init__(alphabet)
 
-    def encode(self, text) -> Tensor:
+    def encode(self, text) -> torch.Tensor:
         text = self.normalize_text(text)
-        return Tensor(self.bpe.encode([text], output_type=yttm.OutputType.ID))
+        return torch.IntTensor(self.bpe.encode([text], output_type=yttm.OutputType.ID))
 
     def ctc_decode(self, inds: List[int]) -> str:
         # first we filter ctc tokens
-        if isinstance(inds, Tensor):
+        if isinstance(inds, torch.Tensor):
             inds = inds.tolist()
+
         new_inds = []
         for ind in inds:
             if len(new_inds) and new_inds[-1] == ind:
                 continue
             if len(new_inds) and new_inds[-1] == self.char2ind[self.EMPTY_TOK]:
                 new_inds.pop()
-            new_inds.append(self.ind2char[ind])
+            new_inds.append(ind)
 
         if new_inds[-1] == self.char2ind[self.EMPTY_TOK]:
             new_inds.pop()
 
-        return self.bpe.decode(new_inds)
+        return self.bpe.decode(new_inds)[0]
 
-    def ctc_beam_search(self, probs: Tensor,
+    def ctc_beam_search(self, probs: torch.Tensor,
                         beam_size: int = 100) -> List[Tuple[str, float]]:
         raise NotImplemented("TODO")

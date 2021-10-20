@@ -3,7 +3,7 @@ import unittest
 import torch
 
 from hw_asr.text_encoder.ctc_char_text_encoder import CTCCharTextEncoder
-import numpy as np
+from hw_asr.text_encoder.ctc_bpe_text_encoder import BPECharTextEncoder
 
 
 class TestTextEncoder(unittest.TestCase):
@@ -31,3 +31,12 @@ class TestTextEncoder(unittest.TestCase):
 
         decoded_beams = text_encoder.ctc_beam_search(probs, beam_size=20)
         self.assertIn(decoded_beams[0][0], "bunny bunny")
+
+    def test_bpe_encoder(self):
+        text_encoder = BPECharTextEncoder()
+        encoded = text_encoder.encode("i love katya")[0]
+        self.assertIn(text_encoder.ctc_decode(encoded), "i love katya")
+
+        encoded = ["▁the", "▁the", "^", "▁", "b", "a", "a", "n", "^", "k", "^", "^"]
+        encoded = [text_encoder.char2ind[tok] for tok in encoded]
+        self.assertIn(text_encoder.ctc_decode(encoded), "the bank")
