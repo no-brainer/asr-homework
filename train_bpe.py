@@ -2,9 +2,7 @@ import argparse
 import os
 import tempfile
 
-from tokenizers import Tokenizer
-from tokenizers.models import BPE
-from tokenizers.trainers import BpeTrainer
+import youtokentome as yttm
 
 
 def normalize_text(text):
@@ -28,11 +26,12 @@ def prep_corpus(corpus_file, path):
                     corpus_file.write(normalize_text(line))
 
 
-def train_bpe_tokenizer(corpus_file, vocab_size, dropout, save_file):
-    tokenizer = Tokenizer(BPE(dropout=dropout))
-    trainer = BpeTrainer(vocab_size=vocab_size)
-    tokenizer.train([corpus_file], trainer)
-    tokenizer.save(save_file)
+def train_bpe_tokenizer(corpus_file, vocab_size, save_file):
+    yttm.BPE.train(
+        data=corpus_file,
+        vocab_size=vocab_size,
+        model=save_file
+    )
 
 
 def main(args):
@@ -44,7 +43,6 @@ def main(args):
         train_bpe_tokenizer(
             corpus_path,
             args.vocab_size,
-            args.bpe_dropout,
             args.out
         )
 
@@ -61,7 +59,7 @@ if __name__ == "__main__":
     args.add_argument(
         "-o",
         "--out",
-        default="./hw_asr/language_models/bpe.json",
+        default="./hw_asr/language_models/bpe.model",
         type=str,
         help="path to saved bpe tokenizer"
     )
@@ -71,13 +69,6 @@ if __name__ == "__main__":
         default=500,
         type=int,
         help="amount of tokens used by bpe"
-    )
-    args.add_argument(
-        "-d",
-        "--bpe_dropout",
-        default=0.1,
-        type=float,
-        help="BPE dropout"
     )
 
     args = args.parse_args()
