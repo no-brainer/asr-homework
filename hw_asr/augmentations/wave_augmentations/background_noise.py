@@ -31,7 +31,9 @@ class BackgroundNoise(AugmentationBase):
             if filename.endswith(".wav")
         ]
 
-        self.sr = kwargs.get("sr", 16_000)
+        self.sr = kwargs.get("sr", 16000)
+        self.max_level = kwargs.get("max_level", 40)
+        self.min_level = kwargs.get("min_level", 0)
 
     def _load_audio(self, path):
         audio_tensor, sr = torchaudio.load(path)
@@ -52,7 +54,7 @@ class BackgroundNoise(AugmentationBase):
         offset = random.randint(0, int(0.75 * data.shape[0]))
         background_noise = background_noise[:data.shape[0] - offset]
 
-        noize_level = torch.Tensor([random.randint(0, 40)])
+        noize_level = torch.Tensor([random.uniform(self.min_level, self.max_level)])
 
         noize_energy = torch.norm(background_noise)
         audio_energy = torch.norm(data)
