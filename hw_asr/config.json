@@ -15,7 +15,8 @@
             "type": "Gain",
             "args": {
                 "sr": 16000
-            }
+            },
+            "aug_prob": 0.2
         },
         {
             "type": "PitchShifting",
@@ -23,19 +24,25 @@
                 "min_shift": -3,
                 "max_shift": 3,
                 "sr": 16000
-            }
+            },
+            "aug_prob": 0.2
         },
         {
             "type": "BackgroundNoise",
             "args": {
                 "sr": 16000
-            }
+            },
+            "aug_prob": 0.2
         }
     ],
     "spectrogram": [
         {
             "type": "SpecAugment",
-            "args": {}
+            "args": {
+                "max_freq_mask": 15,
+                "max_time_mask": 50
+            },
+            "aug_prob": 0.2
         }
     ]
   },
@@ -47,7 +54,7 @@
       "r_conv_blocks": 5,
       "channel_nums": [256, 256, 256, 512, 512, 512, 512, 1024],
       "kernel_sizes": [ 33,  33,  39,  51,  63,  75,  87,    1],
-      "activation": "ReLU"
+      "activation": "GELU"
     }
   },
   "data": {
@@ -56,11 +63,11 @@
       "num_workers": 5,
       "datasets": [
         {
-          "type": "LibrispeechDataset",
+          "type": "LJDataset",
           "args": {
-            "part": "train-clean-100",
+            "part": "train",
             "max_audio_length": 20.0,
-            "max_text_length": 200
+            "max_text_length": 200,
           }
         }
       ]
@@ -70,9 +77,9 @@
       "num_workers": 5,
       "datasets": [
         {
-          "type": "LibrispeechDataset",
+          "type": "LJDataset",
           "args": {
-            "part": "dev-clean",
+            "part": "test",
             "max_audio_length": 20.0,
             "max_text_length": 200
           }
@@ -81,11 +88,11 @@
     }
   },
   "optimizer": {
-    "type": "AdamW",
+    "type": "SGD",
     "args": {
-      "lr": 1e-1,
-      "betas": [0.9, 0.999],
-      "weight_decay": 1e-5
+      "lr": 1e-2,
+      "momentum": 0.9,
+      "nesterov": true
     }
   },
   "loss": {
@@ -110,14 +117,14 @@
     "type": "OneCycleLR",
     "args": {
       "steps_per_epoch": 51,
-      "epochs": 55,
+      "epochs": 10,
       "anneal_strategy": "cos",
-      "max_lr": 1e-1,
+      "max_lr": 5e-1,
       "pct_start": 0.2
     }
   },
   "trainer": {
-    "epochs": 55,
+    "epochs": 10,
     "len_epoch": 50,
     "save_dir": "saved/",
     "save_period": 5,
