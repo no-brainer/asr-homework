@@ -75,15 +75,14 @@ class CRNN(BaseModel):
         out = self.cnn(spectrogram)
         out = self.rescnn_layers(out)
 
-        out = out.transpose(1, 2)  # (batch, channels, time, feats) -> (batch, time, channels, feats)
+        out = out.transpose(1, 2).contiguous()  # (batch, channels, time, feats) -> (batch, time, channels, feats)
         sizes = out.size()
         out = out.view(sizes[0], sizes[1], sizes[2] * sizes[3])  # (batch, time, feats)
 
         out = self.fully_connected(out)
-        out_packed = pack_padded_sequence(
-            out, kwargs["spectrogram_length"], batch_first=True, enforce_sorted=False
-        )
-        out_packed, _ = self.birnn_layers(out_packed)
-        out, _ = pad_packed_sequence(out_packed, batch_first=True)
+        out, _ = self.birnn_layers(out)
 
         return self.classifier(out)
+
+    def transform_input_lengths(self, input_lengths):
+        return input_lengths // 2
