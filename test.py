@@ -8,6 +8,7 @@ from tqdm import tqdm
 
 import hw_asr.model as module_model
 from hw_asr.datasets.utils import get_dataloaders
+import hw_asr.metric.utils as metrics
 from hw_asr.text_encoder.ctc_char_text_encoder import CTCCharTextEncoder
 from hw_asr.trainer import Trainer
 from hw_asr.utils import ROOT_PATH
@@ -43,6 +44,8 @@ def main(config, out_file):
 
     results = []
 
+    wers = []
+    cers = []
     with torch.no_grad():
         for batch_num, batch in enumerate(tqdm(dataloaders["test"])):
             batch = Trainer.move_batch_to_device(batch, device)
@@ -57,6 +60,7 @@ def main(config, out_file):
             )
             batch["probs"] = batch["log_probs"].exp().cpu()
             batch["argmax"] = batch["probs"].argmax(-1)
+
             for i in range(len(batch["text"])):
                 argmax = batch["argmax"][i]
                 argmax = argmax[:int(batch["log_probs_length"][i])]
@@ -69,8 +73,19 @@ def main(config, out_file):
                         )[:10],
                     }
                 )
+
+                beam_prediction = results[-1]["pred_text_beam_search"][0][0]
+                wers.append(metrics.calc_wer(
+                    results[-1]["ground_truth"], beam_prediction
+                ))
+                cers.append(metrics.calc_cer(
+                    results[-1]["ground_truth"], beam_prediction
+                ))
+
     with Path(out_file).open("w") as f:
         json.dump(results, f, indent=2)
+
+    print("WER {:.6f}; CER {:.6f}".format(sum(wers) / len(wers), sum(cers) / len(cers)))
 
 
 if __name__ == "__main__":
