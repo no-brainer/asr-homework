@@ -8,7 +8,7 @@ import youtokentome as yttm
 from hw_asr.text_encoder.ctc_char_text_encoder import CTCCharTextEncoder
 
 
-class BPECharTextEncoder(CTCCharTextEncoder):
+class CTCBPETextEncoder(CTCCharTextEncoder):
 
     def __init__(self):
         model_path = "./hw_asr/language_models/bpe.model"
@@ -43,7 +43,7 @@ class BPECharTextEncoder(CTCCharTextEncoder):
         if new_inds[-1] == self.char2ind[self.EMPTY_TOK]:
             new_inds.pop()
 
-        return self.bpe.decode(new_inds)[0]
+        return "".join(self.bpe.decode(new_inds))
 
     def ctc_beam_search(self, probs: torch.Tensor,
                         beam_size: int = 100) -> List[Tuple[str, float]]:
