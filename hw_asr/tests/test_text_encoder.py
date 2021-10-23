@@ -3,7 +3,7 @@ import unittest
 import torch
 
 from hw_asr.text_encoder.ctc_char_text_encoder import CTCCharTextEncoder
-from hw_asr.text_encoder.ctc_bpe_text_encoder import BPECharTextEncoder
+from hw_asr.text_encoder.ctc_bpe_text_encoder import CTCBPETextEncoder
 
 
 class TestTextEncoder(unittest.TestCase):
@@ -33,7 +33,7 @@ class TestTextEncoder(unittest.TestCase):
         self.assertIn(decoded_beams[0][0], "bunny bunny")
 
     def test_bpe_encoder(self):
-        text_encoder = BPECharTextEncoder()
+        text_encoder = CTCBPETextEncoder()
         encoded = text_encoder.encode("i love katya")[0]
         self.assertIn(text_encoder.ctc_decode(encoded), "i love katya")
 
